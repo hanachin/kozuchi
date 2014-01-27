@@ -71,12 +71,12 @@
   <% unless @settlement.result_entry %>
   <div style="color:red; font-weight: bold;">データが破損しています。精算取引がありません。管理者に連絡してください。</div>
   <% else %>
-  <table class="book">
+  <table class="book settlement">
     <tr>
       <%= display_account_entry_header %>
       <th class="icon_to_deal"></th>
     </tr>
-    <tr>
+    <tr class="entry">
       <%= display_account_entry(@settlement.result_entry)%>
       <td class="icon_to_deal"><%= icon_to_deal_in_monthly(@settlement.result_entry.year, @settlement.result_entry.month, @settlement.result_entry.deal_id) %></td>
     </tr>

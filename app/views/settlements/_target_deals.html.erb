@@ -8,7 +8,7 @@
     <%= link_to 'すべて選択', '#', class: ['button', 'selectAll'] %>
     &nbsp;
     <%= link_to 'すべて解除', '#', class: ['button', 'clearAll'] %></div>
-  <table class="book">
+  <table class="book settlement">
     <tr>
       <th style="width: 3em;">登録</th>
       <%= display_account_entry_header %>
@@ -16,7 +16,7 @@
     <% for entry in @entries %>
       <% selected = @selected_deals.include?(entry.deal) %>
       <% style = selected ? "" : "style=\"background-color: #dddddd;\""%>
-      <tr>
+      <tr class="entry">
         <td <%= style%>>
           <%= check_box_tag("settlement[deal_ids][#{entry.deal.id}]", "1", selected, :onClick => "settlement.toggle(this, #{entry.amount})", data: {amount: entry.amount})%>
         </td>
@@ -65,7 +65,6 @@
             </td>
           </tr>
         </table>
-          
           <%= submit_tag('精算データを登録する', :class => 'button')%>
         <% end %>
       </td>
