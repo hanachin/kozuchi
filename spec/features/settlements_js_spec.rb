@@ -16,8 +16,10 @@ describe SettlementsController, :js => true do
       before do
         # 新しいクレカの先月の記入が1件ある状態にする
         date = Date.today << 1
-        new_simple_deal(date.month, date.day, new_card, accounts(:taro_food), 1500, date.year).save!
-
+        FactoryGirl.create(:general_deal,
+                           date: date,
+                           debtor_entries_attributes: [account_id: accounts(:taro_food).id, amount: 1500],
+                           creditor_entries_attributes: [account_id: new_card.id, amount: -1500])
         visit url
         select "新しいクレカ(クレジットカード)", from: "settlement_account_id"
       end
@@ -27,8 +29,25 @@ describe SettlementsController, :js => true do
       end
     end
 
-    #describe "期間を変えて表示内容を更新" do
-    #end
+    describe "期間を変えて表示内容を更新" do
+      let(:date) { Date.today << 2 }
+      let(:account) { current_user.assets.credit.first }
+      # 先々月に１件作っておく
+      let!(:old_deal) { FactoryGirl.create(:general_deal,
+                                          date: date,
+                                          debtor_entries_attributes: [account_id: accounts(:taro_food).id, amount: 880],
+                                          creditor_entries_attributes: [account_id: account.id, amount: -880]) }
+      # 画面を表示し、開始期間を先々月（の1日）にして更新
+      before {
+        visit url
+        select date.year.to_s, from: :start_date_year
+        select date.month.to_s, from: :start_date_month
+        click_button "表示内容を更新"
+      }
+      it "先々月の記入が表示される" do
+        page.find("table.settlement tr.entry td.creditor").should have_content("880")
+      end
+    end
 
   end
 end
