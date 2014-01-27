@@ -1,5 +1,5 @@
 <%= javascript_tag do %>
-  var settlement = new Settlement;
+  var settlement = new Settlement();
 
 <% end %>
 <%= form_tag settlements_path, :id => 'target_deals_form', data: {url: url_for(:action => 'target_deals', :clear_selection => true)} do %>

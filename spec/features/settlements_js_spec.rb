@@ -49,5 +49,72 @@ describe SettlementsController, :js => true do
       end
     end
 
+    describe "すべて解除ボタンを押す" do
+      include_context "先月に精算対象記入が２件あるとき" do
+        let(:target_account) { current_user.assets.credit.first }
+        let(:partner_account) { accounts(:taro_food) }
+      end
+      before do
+        visit url
+        click_link("すべて解除")
+      end
+      it "２件が表示されており、チェックが外れており、合計が0" do
+        page.find("#creditor_sum").should have_content("0")
+        page.find("#debtor_sum").should have_content("0")
+        page.find("#target_description").should have_content("から")
+        entries = page.all("tr.entry")
+        entries.size.should == 2
+        entries.first.find("input[type='checkbox']")[:checked].should be_false
+        entries.first[:class].split(/\s/).should include("disabled")
+        entries.last.find("input[type='checkbox']")[:checked].should be_false
+        entries.last[:class].split(/\s/).should include("disabled")
+      end
+    end
+
+    describe "すべて選択ボタンを押す" do
+      include_context "先月に精算対象記入が２件あるとき" do
+        let(:target_account) { current_user.assets.credit.first }
+        let(:partner_account) { accounts(:taro_food) }
+      end
+      before do
+        visit url
+        click_link("すべて解除") # 一度解除してから
+        click_link("すべて選択")
+      end
+      it "２件が表示されており、チェックされており、合計が5,900" do
+        page.find("#creditor_sum").should have_content("5,900")
+        page.find("#debtor_sum").should have_content("0")
+        page.find("#target_description").should have_content("に")
+        entries = page.all("tr.entry")
+        entries.size.should == 2
+        entries.first.find("input[type='checkbox']")[:checked].should be_true
+        entries.first[:class].split(/\s/).should_not include("disabled")
+        entries.last.find("input[type='checkbox']")[:checked].should be_true
+        entries.last[:class].split(/\s/).should_not include("disabled")
+      end
+    end
+
+    describe "1件チェックボックスをはずす" do
+      include_context "先月に精算対象記入が２件あるとき" do
+        let(:target_account) { current_user.assets.credit.first }
+        let(:partner_account) { accounts(:taro_food) }
+      end
+      before do
+        visit url
+        first_entry = page.first("tr.entry")
+        first_entry.find("input[type='checkbox']").click() # 外す
+      end
+      it "合計が4,700円" do
+        page.find("#creditor_sum").should have_content("4,700")
+        page.find("#debtor_sum").should have_content("0")
+        page.find("#target_description").should have_content("に")
+        entries = page.all("tr.entry")
+        entries.size.should == 2
+        entries.first.find("input[type='checkbox']")[:checked].should be_false
+        entries.first[:class].split(/\s/).should include("disabled")
+        entries.last.find("input[type='checkbox']")[:checked].should be_true
+        entries.last[:class].split(/\s/).should_not include("disabled")
+      end
+    end
   end
 end

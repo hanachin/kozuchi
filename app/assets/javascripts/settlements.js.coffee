@@ -1,29 +1,39 @@
 class @Settlement
-  contsructor: () ->
+  refresh: ->
     @creditorSum = 0
     @debtorSum = 0
-  toggle: (checkbox, amount) ->
-    if checkbox.checked
-      if amount < 0
-        @debtorSum -= amount
+
+    # 出金側の集計・更新
+    creditor_entries = $("table.settlement tr.entry td.creditor")
+    for e in creditor_entries
+      $tr = $(e).closest("tr")
+      $checkbox = $("input[type='checkbox']", $tr)
+      if $checkbox.prop("checked")
+        @creditorSum += parseInt($(e).text().replace(/,/, ''), 10) if $(e).text() != ""
+        $tr.removeClass("disabled")
       else
-        @creditorSum += amount
-      $(checkbox.parentNode.parentNode).removeClass('disabled')
-    else
-      if amount < 0
-        @debtorSum += amount
-      else
-        @creditorSum -= amount
-      $(checkbox.parentNode.parentNode).addClass('disabled')
-    $('#debtor_sum').html(numToFormattedString(@debtorSum))
+        $tr.addClass("disabled")
     $('#creditor_sum').html(numToFormattedString(@creditorSum))
 
-    if @debtorSum > @creditorSum
+    # 入金側の集計・更新
+    debtor_entries = $("table.settlement tr.entry td.debtor")
+    for e in debtor_entries
+      $tr = $(e).closest("tr")
+      $checkbox = $("input[type='checkbox']", $tr)
+      if $checkbox.prop("checked")
+        @debtorSum += parseInt($(e).text().replace(/,/, ''), 10) if $(e).text() != ""
+        $tr.removeClass("disabled")
+      else
+        $tr.addClass("disabled")
+    $('#debtor_sum').html(numToFormattedString(@debtorSum))
+
+    # サマリー
+    if @creditorSum > @debtorSum
       $('#target_description').html('に');
-      $('#result').html(' から ' + numToFormattedString(@debtorSum - @creditorSum) + '円 を入金する。')
+      $('#result').html(' から ' + numToFormattedString(@creditorSum - @debtorSum) + '円 を入金する。')
     else
       $('#target_description').html('から');
-      $('#result').html(' に ' + numToFormattedString(@creditorSum - @debtorSum) + '円 が入金される。')
+      $('#result').html(' に ' + numToFormattedString(@debtorSum - @creditorSum) + '円 が入金される。')
 
 numToFormattedString = (num) ->
   str = num.toString()

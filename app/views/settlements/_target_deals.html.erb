@@ -18,20 +18,19 @@
       <% style = selected ? "" : "style=\"background-color: #dddddd;\""%>
       <tr class="entry">
         <td <%= style%>>
-          <%= check_box_tag("settlement[deal_ids][#{entry.deal.id}]", "1", selected, :onClick => "settlement.toggle(this, #{entry.amount})", data: {amount: entry.amount})%>
+          <%= check_box_tag("settlement[deal_ids][#{entry.deal.id}]", "1", selected, :onClick => "settlement.refresh()")%>
         </td>
         <%= display_account_entry entry, style%>
       </tr>
       <% if selected %>
-        <% debtor_sum += entry.amount if entry.amount < 0 %>
-        <% creditor_sum += entry.amount.abs if entry.amount >= 0 %>
+        <% debtor_sum += entry.amount.abs if entry.amount >= 0 %>
+        <% creditor_sum += entry.amount if entry.amount < 0 %>
       <% end %>
     <% end %>
     <tr>
-      <td colspan="5"></td>
-      <td class="amount"><div id='debtor_sum'><%= number_with_delimiter(debtor_sum*-1) if debtor_sum < 0 %></div></td>
-      <td class="amount"><div id='creditor_sum'><%= number_with_delimiter(creditor_sum) if creditor_sum > 0%></div></td>
-      <td></td>
+      <td colspan="6"></td>
+      <td class="amount"><div id='creditor_sum'><%= number_with_delimiter(creditor_sum*-1) %></div></td>
+      <td class="amount"><div id='debtor_sum'><%= number_with_delimiter(debtor_sum) %></div></td>
     </tr>
     <tr>
       <td colspan="3">精算内容</td>
@@ -71,10 +70,6 @@
     </tr>
   </table>
 </div>
-<%= javascript_tag do %>
-  settlement.debtorSum = <%= debtor_sum * -1 %>;
-  settlement.creditorSum = <%= creditor_sum %>;
-<% end %>
 
 
 <% end %>
